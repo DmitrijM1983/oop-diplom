@@ -68,4 +68,14 @@ class UserModel
         move_uploaded_file($tmp, $image);
         $query->update($vars, ['image'=>$image]);
     }
+
+    public function delete($vars)
+    {
+        $query = new QueryBuilder();
+        $fileName = $query->getOneUser($vars)[0]->image;
+        if (file_exists($fileName)) {
+            unlink($fileName);
+        }
+        $query->deleteUserById($vars);
+    }
 }

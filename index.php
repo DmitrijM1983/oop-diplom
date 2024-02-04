@@ -19,6 +19,7 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r)
     $r->addRoute('POST', '/status/{id:\d+}', [UserController::class, 'setStatus']);
     $r->addRoute('GET', '/media/{id:\d+}', [UserController::class, 'getMedia']);
     $r->addRoute('POST', '/media/{id:\d+}', [UserController::class, 'setMedia']);
+    $r->addRoute('GET', '/delete/{id:\d+}', [UserController::class, 'deleteUser']);
     // The /{title} suffix is optional
     $r->addRoute('GET', '/articles/{id:\d+}[/{title}]', 'get_article_handler');
 });

@@ -122,5 +122,15 @@ class QueryBuilder
         $userModel = new UserModel();
         $userModel->printMediaUser($user);
     }
+
+    public function deleteUserById($vars)
+    {
+        $delete = $this->queryFactory->newDelete();
+
+        $delete->from('users')->where('id = :id');
+        $sth = $this->pdo->prepare($delete->getStatement());
+        $sth->execute($vars);
+        header('Location:/users');
+    }
 }
 

@@ -82,4 +82,9 @@ class UserController
         $size = $_FILES['image']['size'];
         $this->userValidate->checkImage($vars, $name, $tmp, $size);
     }
+
+    public function deleteUser($vars)
+    {
+        $this->userModel->delete($vars);
+    }
 }

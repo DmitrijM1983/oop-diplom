@@ -97,7 +97,7 @@
                                         <i class="fa fa-user-circle"></i>
                                         Открыть профиль</a>
 
-                                        <a href="#" class="dropdown-item" onclick="return confirm('are you sure?');">
+                                        <a href="delete/<?=$user->id;?>" class="dropdown-item" onclick="return confirm('are you sure?');">
                                             <i class="fa fa-window-close"></i>
                                             Удалить
                                         </a>
