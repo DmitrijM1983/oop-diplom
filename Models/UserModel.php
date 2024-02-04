@@ -50,4 +50,22 @@ class UserModel
         $query = new QueryBuilder();
         $query->update($vars, ['status'=>$newStatus]);
     }
+
+    public function printMediaUser(array $data)
+    {
+        $templates = new League\Plates\Engine('views');
+        echo $templates->render('media', $data);
+    }
+
+    public function setNewImage($vars, $name, $tmp)
+    {
+        $query = new QueryBuilder();
+        $fileName = $query->getOneUser($vars)[0]->image;
+        if (file_exists($fileName)) {
+            unlink($fileName);
+        }
+        $image = 'img/demo/avatars/avatar-' . uniqid() . '.' . $name;
+        move_uploaded_file($tmp, $image);
+        $query->update($vars, ['image'=>$image]);
+    }
 }

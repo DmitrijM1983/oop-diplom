@@ -10,11 +10,13 @@ class UserController
 {
     private QueryBuilder $queryBuilder;
     private UserModel $userModel;
+    private UserValidate $userValidate;
 
     public function __construct()
     {
         $this->queryBuilder = new QueryBuilder();
         $this->userModel = new UserModel();
+        $this->userValidate = new UserValidate();
     }
 
     public function getUsersList()
@@ -66,5 +68,18 @@ class UserController
     {
         $status = $_POST['status'];
         $this->userModel->setStatusParam($vars, $status);
+    }
+
+    public function getMedia($vars)
+    {
+        $this->queryBuilder->getUserMedia($vars);
+    }
+
+    public function setMedia($vars)
+    {
+        $name = $_FILES['image']['name'];
+        $tmp = $_FILES['image']['tmp_name'];
+        $size = $_FILES['image']['size'];
+        $this->userValidate->checkImage($vars, $name, $tmp, $size);
     }
 }

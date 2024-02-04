@@ -38,4 +38,14 @@ class UserValidate
             }
         }
     }
+
+    public function checkImage($vars, $name, $tmp, $size)
+    {
+        $name = explode('.', $name);
+        $name = $name[1];
+        if ($name === 'png' || $name === 'jpg' && $size < 9000000) {
+            $userModel = new UserModel();
+            $userModel->setNewImage($vars, $name, $tmp);
+        }
+    }
 }

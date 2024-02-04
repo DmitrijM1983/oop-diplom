@@ -89,7 +89,7 @@
                                         <a class="dropdown-item" href="status/<?=$user->id;?>">
                                             <i class="fa fa-sun"></i>
                                         Установить статус</a>
-                                        <a class="dropdown-item" href="../media.html">
+                                        <a class="dropdown-item" href="media/<?=$user->id;?>">
                                             <i class="fa fa-camera"></i>
                                             Загрузить аватар
                                         </a>

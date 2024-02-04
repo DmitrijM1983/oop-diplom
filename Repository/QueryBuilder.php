@@ -115,5 +115,12 @@ class QueryBuilder
         $userModel = new UserModel();
         $userModel->printStatusUser($user);
     }
+
+    public function getUserMedia($vars)
+    {
+        $user = $this->getOneUser($vars);
+        $userModel = new UserModel();
+        $userModel->printMediaUser($user);
+    }
 }
 
