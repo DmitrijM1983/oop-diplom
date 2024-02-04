@@ -2,18 +2,19 @@
 
 namespace Controllers;
 
+use Models\UserModel;
 use Models\UserValidate;
 use Repository\QueryBuilder;
 
 class UserController
 {
     private QueryBuilder $queryBuilder;
-    private UserValidate $userValidate;
+    private UserModel $userModel;
 
     public function __construct()
     {
         $this->queryBuilder = new QueryBuilder();
-        $this->userValidate = new UserValidate();
+        $this->userModel = new UserModel();
     }
 
     public function getUsersList()
@@ -23,7 +24,10 @@ class UserController
 
     public function getUserById($vars)
     {
-        $this->queryBuilder->getOneUser($vars);
+        $user = $this->queryBuilder->getOneUser($vars);
+        if ($user) {
+            $this->userModel->printUser($user);
+        }
     }
 
     public function editUser($vars)
@@ -49,13 +53,18 @@ class UserController
 
     public function updateUserSecurity($vars)
     {
-        $email = $_POST['email'];
-        $password = $_POST['password'];
-        $password2 = $_POST['password2'];
-        $emailValidate = $this->userValidate->checkEmail($email);
-        $passwordValidate = $this->userValidate->checkPassword($password, $password2);
-        if ($emailValidate && $passwordValidate) {
-            $this->queryBuilder->updateSecurity($vars, $password);
-        }
+        $params = $_POST;
+        $this->queryBuilder->updateSecurityUser($vars, $params);
+    }
+
+    public function getStatus($vars)
+    {
+        $this->queryBuilder->getUserStatus($vars);
+    }
+
+    public function setStatus($vars)
+    {
+        $status = $_POST['status'];
+        $this->userModel->setStatusParam($vars, $status);
     }
 }

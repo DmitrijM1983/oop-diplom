@@ -15,6 +15,8 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r)
     $r->addRoute('POST', '/edit/{id:\d+}', [UserController::class, 'updateUser']);
     $r->addRoute('GET', '/security/{id:\d+}', [UserController::class, 'userSecurity']);
     $r->addRoute('POST', '/security/{id:\d+}', [UserController::class, 'updateUserSecurity']);
+    $r->addRoute('GET', '/status/{id:\d+}', [UserController::class, 'getStatus']);
+    $r->addRoute('POST', '/status/{id:\d+}', [UserController::class, 'setStatus']);
     // The /{title} suffix is optional
     $r->addRoute('GET', '/articles/{id:\d+}[/{title}]', 'get_article_handler');
 });

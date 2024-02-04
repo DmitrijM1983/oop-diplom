@@ -2,14 +2,21 @@
 
 namespace Models;
 
+use Repository\QueryBuilder;
+
 class UserValidate
 {
-    public function checkEmail($email)
+    public function checkEmail($email, QueryBuilder $queryBuilder)
     {
-        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return true;
+        $user = $queryBuilder->getUserbyEmail($email);
+        if (!$user) {
+            if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                return true;
+            }
+            echo 'Это не емэйл а шляпа!';
+        } else {
+            echo 'Эта почта занята!';
         }
-        return false;
     }
 
     public function checkPassword(string $password, string $password2 = null)

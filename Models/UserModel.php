@@ -2,6 +2,7 @@
 
 namespace Models;
 use League;
+use Repository\QueryBuilder;
 
 class UserModel
 {
@@ -27,5 +28,26 @@ class UserModel
     {
         $templates = new League\Plates\Engine('views');
         echo $templates->render('security', $vars);
+    }
+
+    public function printStatusUser(array $data)
+    {
+        $templates = new League\Plates\Engine('views');
+        echo $templates->render('status', $data);
+    }
+
+    public function setStatusParam($vars, $status)
+    {
+        if ($status === 'Онлайн') {
+            $newStatus = 'online';
+        }
+        if ($status === 'Отошел') {
+            $newStatus = 'moved away';
+        }
+        if ($status === 'Не беспокоить') {
+            $newStatus = 'do not disturb';
+        }
+        $query = new QueryBuilder();
+        $query->update($vars, ['status'=>$newStatus]);
     }
 }
