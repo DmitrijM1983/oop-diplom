@@ -3,49 +3,107 @@
 namespace Models;
 
 use Repository\QueryBuilder;
+use Tamtamchik\SimpleFlash\Flash;
 
 class UserValidate
 {
-    public function checkEmail($email, QueryBuilder $queryBuilder)
+    public Flash $flash;
+    private array $errors = [];
+    protected QueryBuilder $queryBuilder;
+    public bool $validateSuccess = false;
+
+    public function __construct()
     {
-        $user = $queryBuilder->getUserbyEmail($email);
-        if (!$user) {
-            if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                return true;
-            }
-            echo 'Это не емэйл а шляпа!';
-        } else {
-            echo 'Эта почта занята!';
-        }
+        $this->flash = new Flash();
     }
 
-    public function checkPassword(string $password, string $password2 = null)
+    /**
+     * @param array $data
+     * @param array $items
+     * @param null $vars
+     * @return $this
+     */
+    public function checkData(array $data, array $items, $vars = null): object
     {
-        if ($password === '') {
-            echo 'Пароль не может быть пустым!';
-            exit;
-        }
-        if (strlen($password) <= 3) {
-            echo 'Пароль должен быть больше 3 символов!';
-            exit;
-        }
-        if ($password2 != null || $password2 === '') {
-            if ($password != $password2) {
-                echo 'Пароли не совпадают!';
-                exit;
-            } else {
-               return true;
+        $this->queryBuilder = new  QueryBuilder();
+        foreach ($items as $item=>$rules) {
+            foreach ($rules as $rule=>$rule_value) {
+                $value = $data[$item];
+                if ($rule === 'required' && empty($value)) {
+                    $this->flash->message("Поле {$item} не заполнено!", 'error');
+                    $this->addError("Ошибка!");
+                } elseif (!empty($value)) {
+                    switch ($rule) {
+                        case 'min':
+                            if (strlen($value) < $rule_value) {
+                                $this->flash->message("{$item} должен быть не менее {$rule_value} символов!", 'error');
+                                $this->addError("Ошибка!");
+                            }
+                            break;
+                        case 'max':
+                            if (strlen($value) > $rule_value) {
+                                $this->flash->message("{$item} должен быть не более {$rule_value} символов!", 'error');
+                                $this->addError("Ошибка!");
+                            }
+                            break;
+                        case 'matches':
+                            if ($value != $data[$rule_value]) {
+                                $this->flash->message("Пароли не совпадают!", 'error');
+                                $this->addError("Ошибка!");
+                            }
+                            break;
+                        case 'unique':
+                            $check = $this->queryBuilder->getUser($data[$item]);
+                            if ($vars != null) {
+                                if ($check && $check->id != $vars['id']) {
+                                    $this->flash->message("Этот {$item} уже используется!", 'error');
+                                    $this->addError("Ошибка!");
+                                }
+                            } elseif ($check) {
+                                $this->flash->message("Этот {$item} уже используется!", 'error');
+                                $this->addError("Ошибка!");
+                            }
+                            break;
+                        case 'email':
+                            if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
+                                $this->flash->message("Не корректный {$item}!", 'error');
+                                $this->addError("Ошибка!");
+                            }
+                            break;
+                        }
+                    }
+                }
             }
+        if (empty($this->errors)) {
+            $this->validateSuccess = true;
         }
+        return $this;
     }
 
-    public function checkImage($vars, $name, $tmp, $size)
+    /**
+     * @param $name
+     * @param $size
+     * @return bool
+     */
+    public function checkImage($name, $size): bool
     {
         $name = explode('.', $name);
         $name = $name[1];
-        if ($name === 'png' || $name === 'jpg' && $size < 9000000) {
-            $userModel = new UserModel();
-            $userModel->setNewImage($vars, $name, $tmp);
+        if ($name === 'png' || $name === 'jpg' || $name === 'jpeg' && $size < 9000000) {
+            return true;
+        } else {
+            $this->flash->message("Файл не соответствует!", 'error');
+            $this->addError("Ошибка!");
+            return false;
         }
+    }
+
+    /**
+     * @param $error
+     * @return void
+     */
+    public function addError($error): void
+    {
+        $this->errors[] = $error;
     }
 }

@@ -3,6 +3,7 @@
 $user = $this->data();
 $user = $user[0];
 
+use function Tamtamchik\SimpleFlash\flash;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -29,10 +30,10 @@ $user = $user[0];
             </ul>
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="../page_login.html">Войти</a>
+                    <a class="nav-link" href="/users">Назад</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Выйти</a>
+                    <a class="nav-link" href="/login">Выйти</a>
                 </li>
             </ul>
         </div>
@@ -44,6 +45,9 @@ $user = $user[0];
             </h1>
 
         </div>
+
+        <?=$output = flash()->display('error');?>
+
         <form action="" method="post">
             <div class="row">
                 <div class="col-xl-6">

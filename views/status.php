@@ -38,10 +38,10 @@ $arrayStatus =
             </ul>
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="../page_login.html">Войти</a>
+                    <a class="nav-link" href="/users">Назад</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Выйти</a>
+                    <a class="nav-link" href="/login">Выйти</a>
                 </li>
             </ul>
         </div>

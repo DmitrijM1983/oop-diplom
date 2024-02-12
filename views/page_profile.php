@@ -31,10 +31,10 @@ $user = $user[0];
                 </ul>
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Войти</a>
+                        <a class="nav-link" href="/users">Назад</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Выйти</a>
+                        <a class="nav-link" href="/login">Выйти</a>
                     </li>
                 </ul>
             </div>
@@ -53,10 +53,10 @@ $user = $user[0];
                             <div class="col-12">
                                 <div class="d-flex flex-column align-items-center justify-content-center p-4">
                                     <img src="../<?=$user->image;?>" class="rounded-circle shadow-2 img-thumbnail" alt="">
-                                    <h5 class="mb-0 fw-700 text-center mt-3">
+                                    <h3 class="mb-0 fw-700 text-center mt-3">
                                         <?=$user->username;?>
-                                        <small class="text-muted mb-0"><?=$user->address;?></small>
-                                    </h5>
+                                        <p class="text-muted mb-0"><?=$user->job_title;?></p>
+                                    </h3>
                                     <div class="mt-4 text-center demo">
                                         <a href="<?=$user->instagram;?>" class="fs-xl" style="color:#C13584">
                                             <i class="fab fa-instagram"></i>

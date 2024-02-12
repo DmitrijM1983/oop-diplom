@@ -9,9 +9,14 @@ class ComposerStaticInita96ad7f1fea03c0bf48e8277d5bf4a24
     public static $files = array (
         '3917c79c5052b270641b5a200963dbc2' => __DIR__ . '/..' . '/kint-php/kint/init.php',
         '253c157292f75eb38082b5acb06f3f01' => __DIR__ . '/..' . '/nikic/fast-route/src/functions.php',
+        '6157b075b923803e5ef157aeb43b83bd' => __DIR__ . '/..' . '/tamtamchik/simple-flash/src/function.php',
     );
 
     public static $prefixLengthsPsr4 = array (
+        'T' => 
+        array (
+            'Tamtamchik\\SimpleFlash\\' => 23,
+        ),
         'R' => 
         array (
             'Repository\\' => 11,
@@ -44,6 +49,10 @@ class ComposerStaticInita96ad7f1fea03c0bf48e8277d5bf4a24
     );
 
     public static $prefixDirsPsr4 = array (
+        'Tamtamchik\\SimpleFlash\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/tamtamchik/simple-flash/src',
+        ),
         'Repository\\' => 
         array (
             0 => __DIR__ . '/../..' . '/Repository',

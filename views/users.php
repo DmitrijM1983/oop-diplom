@@ -1,3 +1,9 @@
+<?php
+
+use Models\AuthModel;
+use function Tamtamchik\SimpleFlash\flash;
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -23,19 +29,14 @@
                 </ul>
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="../page_login.html">Войти</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Выйти</a>
+                        <a class="nav-link" href="<?='login'?>">Выйти</a>
                     </li>
                 </ul>
             </div>
         </nav>
-
+        <?=$output = flash()->display();?>
         <main id="js-page-content" role="main" class="page-content mt-3">
-            <div class="alert alert-success">
-                Профиль успешно обновлен.
-            </div>
+
             <div class="subheader">
                 <h1 class="subheader-title">
                     <i class='subheader-icon fal fa-users'></i> Список пользователей
@@ -43,7 +44,11 @@
             </div>
             <div class="row">
                 <div class="col-xl-12">
-                    <a class="btn btn-success" href="create_user.html">Добавить</a>
+
+                    <?php $person = new AuthModel();
+                    if ($person->isAdmin($_SESSION['id'])): ?>
+                    <a class="btn btn-success" href="create">Добавить</a>
+                    <?php endif; ?>
 
                     <div class="border-faded bg-faded p-3 mb-g d-flex mt-3">
                         <input type="text" id="js-filter-contacts" name="filter-contacts" class="form-control shadow-inset-2 form-control-lg" placeholder="Найти пользователя">
@@ -59,7 +64,7 @@
                 </div>
             </div>
             <div class="row" id="js-contacts">
-                <?php foreach ($this->data() as $user):?>
+                <?php foreach ($this->data as $user):?>
                 <div class="col-xl-4">
                     <div id="c_1" class="card border shadow-0 mb-g shadow-sm-hover" data-filter-tags="<?=$user->username;?>">
                         <div class="card-body border-faded border-top-0 border-left-0 border-right-0 rounded-top">
@@ -73,9 +78,15 @@
                                 <span class="status status-<?=$status;?> mr-3">
                                     <span class="rounded-circle profile-image d-block " style="background-image:url(<?=$user->image;?>); background-size: cover;"></span>
                                 </span>
+
+
                                 <div class="info-card-text flex-1">
                                     <a href="javascript:void(0);" class="fs-xl text-truncate text-truncate-lg text-info" data-toggle="dropdown" aria-expanded="false">
                                         <?=$user->username;?>
+
+                                        <?php $person = new AuthModel();
+                                        if ($person->isAdmin($_SESSION['id']) || $_SESSION['id'] === $user->id): ?>
+
                                         <i class="fal fas fa-cog fa-fw d-inline-block ml-1 fs-md"></i>
                                         <i class="fal fa-angle-down d-inline-block ml-1 fs-md"></i>
                                     </a>
@@ -102,8 +113,10 @@
                                             Удалить
                                         </a>
                                     </div>
+                                    <?php endif; ?>
                                     <span class="text-truncate text-truncate-xl"><?=$user->job_title;?></span>
                                 </div>
+                                
                                 <button class="js-expand-btn btn btn-sm btn-default d-none" data-toggle="collapse" data-target="#c_1 > .card-body + .card-body" aria-expanded="false">
                                     <span class="collapsed-hidden">+</span>
                                     <span class="collapsed-reveal">-</span>
@@ -185,3 +198,5 @@
 
     </script>
 </html>
+
+
