@@ -2,6 +2,7 @@
 
 namespace Models;
 
+use Repository\Connection;
 use Repository\QueryBuilder;
 use League;
 use Tamtamchik\SimpleFlash\Flash;
@@ -18,7 +19,7 @@ class AuthModel
     {
         $this->templates = new League\Plates\Engine('views');
         $this->userValidate = new UserValidate();
-        $this->queryBuilder = new QueryBuilder();
+        $this->queryBuilder = new QueryBuilder(Connection::getConnect());
         $this->flash = new Flash();
     }
 
@@ -112,12 +113,12 @@ class AuthModel
                 $checkPassword = password_verify($password, $user->password);
                 if ($checkPassword) {
                     if(isset($_POST['remember'])) {
-                        $cookie = $this->queryBuilder->getUserCokie(['user_id'=>$user->id]);
+                        $cookie = $this->queryBuilder->getCookie(['user_id'=>$user->id], 'user_cookie');
                         if ($cookie) {
                             $hash = $cookie->hash;
                         } else {
                             $hash = hash('sha256', uniqid());
-                            $this->queryBuilder->insertCokie(['user_id'=>$user->id, 'hash'=>$hash]);
+                            $this->queryBuilder->insertCookie(['user_id'=>$user->id, 'hash'=>$hash]);
                         }
                         setcookie('hash', $hash, time() + 604800, '/');
                     }

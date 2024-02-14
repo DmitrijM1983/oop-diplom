@@ -1,6 +1,7 @@
 <?php
 
 namespace Models;
+use Repository\Connection;
 use Repository\QueryBuilder;
 use League;
 use Tamtamchik\SimpleFlash\Flash;
@@ -14,7 +15,7 @@ class SecurityModel
 
     public function __construct()
     {
-        $this->queryBuilder = new QueryBuilder();
+        $this->queryBuilder = new QueryBuilder(Connection::getConnect());
         $this->userValidate = new UserValidate();
         $this->templates = new League\Plates\Engine('views');
         $this->flash = new Flash();
@@ -26,7 +27,7 @@ class SecurityModel
      */
     public function securityUpdate($vars): void
     {
-        $user = $this->queryBuilder->getOneUser( $vars);
+        $user = $this->queryBuilder->getOne( $vars, 'users');
         $this->editSecurity($user);
     }
 

@@ -2,6 +2,7 @@
 
 namespace Models;
 
+use Repository\Connection;
 use Repository\QueryBuilder;
 use League;
 use Tamtamchik\SimpleFlash\Flash;
@@ -15,7 +16,7 @@ class EditModel
 
     public function __construct()
     {
-        $this->queryBuilder = new QueryBuilder();
+        $this->queryBuilder = new QueryBuilder(Connection::getConnect());
         $this->userValidate = new UserValidate();
         $this->templates = new League\Plates\Engine('views');
         $this->flash = new Flash();
@@ -27,7 +28,7 @@ class EditModel
      */
     public function userEdit($vars): void
     {
-        $user = $this->queryBuilder->getOneUser($vars);
+        $user = $this->queryBuilder->getOne($vars, 'users');
         $this->editUserData($user);
     }
 

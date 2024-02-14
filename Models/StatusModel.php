@@ -2,6 +2,7 @@
 
 namespace Models;
 
+use Repository\Connection;
 use Repository\QueryBuilder;
 use League;
 
@@ -12,7 +13,7 @@ class StatusModel
 
     public function __construct()
     {
-        $this->queryBuilder = new QueryBuilder();
+        $this->queryBuilder = new QueryBuilder(Connection::getConnect());
         $this->templates = new League\Plates\Engine('views');
     }
 
@@ -22,7 +23,7 @@ class StatusModel
      */
     public function getCurrentStatus($vars): void
     {
-        $user = $this->queryBuilder->getOneUser($vars);
+        $user = $this->queryBuilder->getOne($vars, 'users');
         $this->printStatusUser($user);
     }
 

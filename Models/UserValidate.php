@@ -2,6 +2,7 @@
 
 namespace Models;
 
+use Repository\Connection;
 use Repository\QueryBuilder;
 use Tamtamchik\SimpleFlash\Flash;
 
@@ -25,7 +26,7 @@ class UserValidate
      */
     public function checkData(array $data, array $items, $vars = null): object
     {
-        $this->queryBuilder = new  QueryBuilder();
+        $this->queryBuilder = new  QueryBuilder(Connection::getConnect());
         foreach ($items as $item=>$rules) {
             foreach ($rules as $rule=>$rule_value) {
                 $value = $data[$item];

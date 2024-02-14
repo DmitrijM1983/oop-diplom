@@ -2,6 +2,7 @@
 
 namespace Models;
 use League;
+use Repository\Connection;
 use Repository\QueryBuilder;
 use \Tamtamchik\SimpleFlash\Flash;
 
@@ -15,7 +16,7 @@ class UserModel
 
     public function __construct()
     {
-        $this->queryBuilder = new QueryBuilder();
+        $this->queryBuilder = new QueryBuilder(Connection::getConnect());
         $this->userValidate = new UserValidate();
         $this->templates = new League\Plates\Engine('views');
         $this->statusModel = new StatusModel();
@@ -37,7 +38,7 @@ class UserModel
      */
     public function getUser($vars): void
     {
-        $user = $this->queryBuilder->getOneUser($vars);
+        $user = $this->queryBuilder->getOne($vars, 'users');
         if ($user) {
             $this->printUser($user);
         }
@@ -77,9 +78,11 @@ class UserModel
      */
     public function setNewImage($name, $tmp, $vars): void
     {
-        $fileName = $this->queryBuilder->getOneUser($vars)[0]->image;
-        if (file_exists($fileName)) {
-            unlink($fileName);
+        $fileName = $this->queryBuilder->getOne($vars, 'users')[0]->image;
+        if ($fileName) {
+            if (file_exists($fileName)) {
+                unlink($fileName);
+            }
         }
         $image = 'img/demo/avatars/avatar-' . uniqid() . '.' . $name;
         move_uploaded_file($tmp, $image);
@@ -92,8 +95,8 @@ class UserModel
      */
     public function delete($vars): void
     {
-        $query = new QueryBuilder();
-        $fileName = $query->getOneUser($vars)[0]->image;
+        $query = new QueryBuilder(Connection::getConnect());
+        $fileName = $query->getOne($vars, 'users')[0]->image;
         if ($fileName) {
             unlink($fileName);
         }

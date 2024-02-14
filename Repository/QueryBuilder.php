@@ -7,14 +7,14 @@ use PDO;
 class QueryBuilder
 {
     private QueryFactory $queryFactory;
-    private \PDO $pdo;
+    private PDO $pdo;
 
 
-    public function __construct()
+    public function __construct(PDO $pdo)
     {
         $this->queryFactory = new QueryFactory('mysql');
-        $this->pdo = new \PDO('mysql:host=127.0.0.1;dbname=marlin;charset=utf8', 'root', '');
-
+        //$this->pdo = new \PDO('mysql:host=127.0.0.1;dbname=marlin;charset=utf8', 'root', '');
+        $this->pdo = $pdo;
     }
 
     /**
@@ -29,16 +29,25 @@ class QueryBuilder
         return $sth->fetchAll(PDO::FETCH_OBJ);
     }
 
-    public function getOneUser($vars)
+    /**
+     * @param $vars
+     * @param $table
+     * @return array|false
+     */
+    public function getOne($vars, $table): bool|array
     {
         $select = $this->queryFactory->newSelect();
-        $select->cols(['*'])->from('users')->where('id = :id') ;
+        $select->cols(['*'])->from("{$table}")->where('id = :id') ;
         $sth = $this->pdo->prepare($select->getStatement());
         $sth->execute($vars);
         return $sth->fetchAll(PDO::FETCH_OBJ);
     }
 
-    public function getUser($value)
+    /**
+     * @param $value
+     * @return mixed
+     */
+    public function getUser($value): mixed
     {
         $select = $this->queryFactory->newSelect();
 
@@ -55,7 +64,11 @@ class QueryBuilder
         return $sth->fetch(PDO::FETCH_OBJ);
     }
 
-    public function getRoleUser($id)
+    /**
+     * @param $id
+     * @return mixed
+     */
+    public function getRoleUser($id): mixed
     {
         $select = $this->queryFactory->newSelect();
         $select->cols(['*'])->from('users')->where('id = :id') ;
@@ -70,7 +83,12 @@ class QueryBuilder
         return $sth->fetch(PDO::FETCH_OBJ)->permissions;
     }
 
-    public function update($vars, $params)
+    /**
+     * @param $vars
+     * @param $params
+     * @return bool
+     */
+    public function update($vars, $params): bool
     {
         $update = $this->queryFactory->newUpdate();
         $update->table('users')->cols($params)->where("id = {$vars['id']}")->bindValues($params);
@@ -78,7 +96,11 @@ class QueryBuilder
         return $sth->execute($update->getBindValues());
     }
 
-    public function insert($params)
+    /**
+     * @param $params
+     * @return bool
+     */
+    public function insert($params): bool
     {
         $insert = $this->queryFactory->newInsert();
         $insert->into('users')->cols($params);
@@ -86,7 +108,11 @@ class QueryBuilder
         return $sth->execute($insert->getBindValues());
     }
 
-    public function deleteUserById($vars)
+    /**
+     * @param $vars
+     * @return void
+     */
+    public function deleteUserById($vars): void
     {
         $delete = $this->queryFactory->newDelete();
         $delete->from('user_cookie')->where('user_id = :user_id');
@@ -99,21 +125,30 @@ class QueryBuilder
         $sth->execute($vars);
     }
 
-    public function getUserCokie($vars)
-    {
-        $select = $this->queryFactory->newSelect();
-        $select->cols(['*'])->from('user_cookie')->where('user_id = :user_id') ;
-        $sth = $this->pdo->prepare($select->getStatement());
-        $sth->execute($vars);
-        return $sth->fetch(PDO::FETCH_OBJ);
-    }
-
-    public function insertCokie($params)
+    /**
+     * @param $params
+     * @return void
+     */
+    public function insertCookie($params): void
     {
         $insert = $this->queryFactory->newInsert();
         $insert->into('user_cookie')->cols($params);
         $sth = $this->pdo->prepare($insert->getStatement());
         $sth->execute($insert->getBindValues());
+    }
+
+    /**
+     * @param $vars
+     * @param $table
+     * @return mixed
+     */
+    public function getCookie($vars, $table): mixed
+    {
+        $select = $this->queryFactory->newSelect();
+        $select->cols(['*'])->from("{$table}")->where('user_id = :user_id') ;
+        $sth = $this->pdo->prepare($select->getStatement());
+        $sth->execute($vars);
+        return $sth->fetch(PDO::FETCH_OBJ);
     }
 }
 
