@@ -21,10 +21,10 @@ class UserValidate
     /**
      * @param array $data
      * @param array $items
-     * @param null $vars
+     * @param array|null $vars
      * @return $this
      */
-    public function checkData(array $data, array $items, $vars = null): object
+    public function checkData(array $data, array $items, array $vars = null): object
     {
         foreach ($items as $item=>$rules) {
             foreach ($rules as $rule=>$rule_value) {
@@ -81,11 +81,11 @@ class UserValidate
     }
 
     /**
-     * @param $name
-     * @param $size
+     * @param string $name
+     * @param int $size
      * @return bool
      */
-    public function checkImage($name, $size): bool
+    public function checkImage(string $name, int $size): bool
     {
         $name = explode('.', $name);
         $name = $name[1];
@@ -99,10 +99,10 @@ class UserValidate
     }
 
     /**
-     * @param $error
+     * @param string $error
      * @return void
      */
-    public function addError($error): void
+    public function addError(string $error): void
     {
         $this->errors[] = $error;
     }

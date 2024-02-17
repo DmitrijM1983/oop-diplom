@@ -92,10 +92,10 @@ class UserModel
     }
 
     /**
-     * @param $id
+     * @param int $id
      * @return mixed
      */
-    public function getRole($id): mixed
+    public function getRole(int $id): mixed
     {
        return $this->role = $this->generalRepository->getRoleUser($id);
     }
@@ -109,19 +109,19 @@ class UserModel
     }
 
     /**
-     * @param $vars
+     * @param array $vars
      * @return array
      */
-    public function getUser($vars): array
+    public function getUser(array $vars): array
     {
         return $this->userRepository->getOne($vars);
     }
 
     /**
-     * @param $vars
+     * @param array $vars
      * @return void
      */
-    public function delete($vars): void
+    public function delete(array $vars): void
     {
         $fileName = $this->userRepository->getOne($vars)[0]->image;
         if ($fileName) {
@@ -170,10 +170,10 @@ class UserModel
     }
 
     /**
-     * @param $fileData
+     * @param array $fileData
      * @return bool
      */
-    public function checkFile($fileData): bool
+    public function checkFile(array $fileData): bool
     {
         $name = $fileData['image']['name'];
         $size = $fileData['image']['size'];

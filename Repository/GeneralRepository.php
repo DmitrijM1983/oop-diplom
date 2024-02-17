@@ -16,10 +16,10 @@ class GeneralRepository
     }
 
     /**
-     * @param $id
+     * @param int $id
      * @return mixed
      */
-    public function getRoleUser($id): mixed
+    public function getRoleUser(int $id): mixed
     {
         $select = $this->queryFactory->newSelect();
         $select->cols(['*'])->from('users')->where('id = :id') ;
@@ -35,10 +35,10 @@ class GeneralRepository
     }
 
     /**
-     * @param $vars
+     * @param array $vars
      * @return void
      */
-    public function deleteUserById($vars): void
+    public function deleteUserById(array $vars): void
     {
         $delete = $this->queryFactory->newDelete();
         $delete->from('user_cookie')->where('user_id = :user_id');
@@ -52,10 +52,10 @@ class GeneralRepository
     }
 
     /**
-     * @param $params
+     * @param array $params
      * @return void
      */
-    public function insertCookie($params): void
+    public function insertCookie(array $params): void
     {
         $insert = $this->queryFactory->newInsert();
         $insert->into('user_cookie')->cols($params);
@@ -64,11 +64,11 @@ class GeneralRepository
     }
 
     /**
-     * @param $vars
-     * @param $table
+     * @param array $vars
+     * @param string $table
      * @return mixed
      */
-    public function getCookie($vars, $table): mixed
+    public function getCookie(array $vars, string $table): mixed
     {
         $select = $this->queryFactory->newSelect();
         $select->cols(['*'])->from("{$table}")->where('user_id = :user_id') ;

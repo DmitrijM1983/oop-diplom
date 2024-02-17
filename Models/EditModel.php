@@ -23,19 +23,19 @@ class EditModel
     }
 
     /**
-     * @param $vars
+     * @param array $vars
      * @return array
      */
-    public function userEdit($vars): array
+    public function userEdit(array $vars): array
     {
         return $this->userRepository->getOne($vars);
     }
 
     /**
-     * @param $vars
+     * @param array $vars
      * @return void
      */
-    public function userUpdate($vars): void
+    public function userUpdate(array $vars): void
     {
         $this->userRepository->update($vars, $_POST);
         $this->flash->message('Профиль успешно обновлен!', 'success');
@@ -43,20 +43,20 @@ class EditModel
     }
 
     /**
-     * @param $vars
+     * @param array $vars
      * @return array
      */
-    public function getUserImage($vars): array
+    public function getUserImage(array $vars): array
     {
         return $this->userRepository->getOne($vars);
     }
 
     /**
-     * @param $fileData
-     * @param $vars
+     * @param array $fileData
+     * @param array|null $vars
      * @return void
      */
-    public function checkFile($fileData, $vars = null): void
+    public function checkFile(array $fileData, array $vars = null): void
     {
         $name = $fileData['image']['name'];
         $tmp = $fileData['image']['tmp_name'];
@@ -72,12 +72,12 @@ class EditModel
     }
 
     /**
-     * @param $name
-     * @param $tmp
-     * @param $vars
+     * @param string $name
+     * @param string $tmp
+     * @param array $vars
      * @return void
      */
-    public function setNewImage($name, $tmp, $vars): void
+    public function setNewImage(string $name, string $tmp, array $vars): void
     {
         $fileName = $this->userRepository->getOne($vars)[0]->image;
         if ($fileName) {
@@ -91,19 +91,19 @@ class EditModel
     }
 
     /**
-     * @param $vars
+     * @param array $vars
      * @return array
      */
-    public function securityUpdate($vars): array
+    public function securityUpdate(array $vars): array
     {
         return $this->userRepository->getOne($vars);
     }
 
     /**
-     * @param $vars
+     * @param array $vars
      * @return void
      */
-    public function updateSecurity($vars): void
+    public function updateSecurity(array $vars): void
     {
         $params =
             [
@@ -116,20 +116,20 @@ class EditModel
     }
 
     /**
-     * @param $vars
+     * @param array $vars
      * @return array
      */
-    public function getCurrentStatus($vars): array
+    public function getCurrentStatus(array $vars): array
     {
         return $this->userRepository->getOne($vars);
     }
 
     /**
-     * @param $status
-     * @param $vars
+     * @param array $status
+     * @param array|null $vars
      * @return string|null
      */
-    public function setStatusParam($status, $vars = null): ?string
+    public function setStatusParam(array $status, array $vars = null): ?string
     {
         if ($status['status'] === 'Онлайн') {
             $newStatus = 'online';

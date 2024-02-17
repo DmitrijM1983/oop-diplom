@@ -19,10 +19,10 @@ class UserRepository extends GeneralRepository
     }
 
     /**
-     * @param $value
+     * @param string $value
      * @return mixed
      */
-    public function getUser($value): mixed
+    public function getUser(string $value): mixed
     {
         $select = $this->queryFactory->newSelect();
 
@@ -40,10 +40,10 @@ class UserRepository extends GeneralRepository
     }
 
     /**
-     * @param $vars
+     * @param array $vars
      * @return array|false
      */
-    public function getOne($vars): bool|array
+    public function getOne(array $vars): bool|array
     {
         $select = $this->queryFactory->newSelect();
         $select->cols(['*'])->from('users')->where('id = :id') ;
@@ -53,11 +53,11 @@ class UserRepository extends GeneralRepository
     }
 
     /**
-     * @param $vars
-     * @param $params
+     * @param array $vars
+     * @param array $params
      * @return bool
      */
-    public function update($vars, $params): bool
+    public function update(array $vars, array $params): bool
     {
         $update = $this->queryFactory->newUpdate();
         $update->table('users')->cols($params)->where("id = {$vars['id']}")->bindValues($params);
@@ -66,10 +66,10 @@ class UserRepository extends GeneralRepository
     }
 
     /**
-     * @param $params
+     * @param array $params
      * @return bool
      */
-    public function insert($params): bool
+    public function insert(array $params): bool
     {
         $insert = $this->queryFactory->newInsert();
         $insert->into('users')->cols($params);
