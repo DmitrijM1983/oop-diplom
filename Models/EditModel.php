@@ -8,18 +8,11 @@ use Tamtamchik\SimpleFlash\Flash;
 
 class EditModel
 {
-    private UserValidate $userValidate;
-    public  Flash $flash;
-    private UserRepository $userRepository;
-
     public function __construct(
-        UserValidate $userValidate,
-        Flash $flash,
-        UserRepository $userRepository)
-    {
-        $this->userValidate = $userValidate;
-        $this->flash = $flash;
-        $this->userRepository = $userRepository;
+        private  readonly UserValidate $userValidate,
+        private  readonly Flash $flash,
+        private  readonly UserRepository $userRepository,
+    ) {
     }
 
     /**
@@ -39,7 +32,6 @@ class EditModel
     {
         $this->userRepository->update($vars, $_POST);
         $this->flash->message('Профиль успешно обновлен!', 'success');
-        header('Location: /users');
     }
 
     /**
@@ -54,9 +46,9 @@ class EditModel
     /**
      * @param array $fileData
      * @param array|null $vars
-     * @return void
+     * @return bool
      */
-    public function checkFile(array $fileData, array $vars = null): void
+    public function checkFile(array $fileData, array $vars = null): bool
     {
         $name = $fileData['image']['name'];
         $tmp = $fileData['image']['tmp_name'];
@@ -65,10 +57,9 @@ class EditModel
         if ($checkImage) {
             $this->setNewImage($name, $tmp, $vars);
             $this->flash->message('Профиль успешно обновлен!', 'success');
-            header("Location: /users");
-        } else {
-            header("Location: /media/{$vars['id']}");
+            return true;
         }
+        return false;
     }
 
     /**
@@ -112,7 +103,6 @@ class EditModel
             ];
         $this->userRepository->update($vars, $params);
         $this->flash->message('Профиль успешно обновлен!', 'success');
-        header('Location: /users');
     }
 
     /**
@@ -144,7 +134,6 @@ class EditModel
             return $newStatus;
         }
         $this->userRepository->update($vars, ['status'=>$newStatus]);
-        header('Location: /users');
-        return null;
+        return null;;
     }
 }
