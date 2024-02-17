@@ -2,20 +2,20 @@
 
 namespace Models;
 
-use Repository\Connection;
 use Repository\QueryBuilder;
 use Tamtamchik\SimpleFlash\Flash;
 
-class UserValidate
+class UserValidate extends \League\Plates\Engine
 {
     public Flash $flash;
     private array $errors = [];
-    protected QueryBuilder $queryBuilder;
+    private QueryBuilder $queryBuilder;
     public bool $validateSuccess = false;
 
-    public function __construct()
+    public function __construct(QueryBuilder $queryBuilder, Flash $flash)
     {
-        $this->flash = new Flash();
+        $this->queryBuilder = $queryBuilder;
+        $this->flash = $flash;
     }
 
     /**
@@ -26,7 +26,6 @@ class UserValidate
      */
     public function checkData(array $data, array $items, $vars = null): object
     {
-        $this->queryBuilder = new  QueryBuilder(Connection::getConnect());
         foreach ($items as $item=>$rules) {
             foreach ($rules as $rule=>$rule_value) {
                 $value = $data[$item];

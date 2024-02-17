@@ -60,7 +60,7 @@ use function Tamtamchik\SimpleFlash\flash;
             </form>
         </div>
         <div class="blankpage-footer text-center">
-            Нет аккаунта? <a href="registration"><strong>Зарегистрироваться</strong>
+            Нет аккаунта? <a href="/registration"><strong>Зарегистрироваться</strong>
         </div>
     </div>
     <video poster="../img/backgrounds/clouds.png" id="bgvid" playsinline autoplay muted loop>

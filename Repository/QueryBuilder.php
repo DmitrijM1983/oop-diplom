@@ -9,18 +9,16 @@ class QueryBuilder
     private QueryFactory $queryFactory;
     private PDO $pdo;
 
-
     public function __construct(PDO $pdo)
     {
         $this->queryFactory = new QueryFactory('mysql');
-        //$this->pdo = new \PDO('mysql:host=127.0.0.1;dbname=marlin;charset=utf8', 'root', '');
         $this->pdo = $pdo;
     }
 
     /**
      * @return bool|array
      */
-    public function getUsers()
+    public function getUsers(): bool|array
     {
         $select = $this->queryFactory->newSelect();
         $select->cols(['*'])->from('users');
@@ -80,7 +78,7 @@ class QueryBuilder
         $select->cols(['*'])->from('groups')->where('id = :id') ;
         $sth = $this->pdo->prepare($select->getStatement());
         $sth->execute(['id' => $user->group_id]);
-        return $sth->fetch(PDO::FETCH_OBJ)->permissions;
+        return$sth->fetch(PDO::FETCH_OBJ)->permissions;
     }
 
     /**

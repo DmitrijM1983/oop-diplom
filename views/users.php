@@ -1,6 +1,5 @@
 <?php
 
-use Models\AuthModel;
 use function Tamtamchik\SimpleFlash\flash;
 
 ?>
@@ -29,7 +28,7 @@ use function Tamtamchik\SimpleFlash\flash;
                 </ul>
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="<?='login'?>">Выйти</a>
+                        <a class="nav-link" href="/logout">Выйти</a>
                     </li>
                 </ul>
             </div>
@@ -45,10 +44,9 @@ use function Tamtamchik\SimpleFlash\flash;
             <div class="row">
                 <div class="col-xl-12">
 
-                    <?php $person = new AuthModel();
-                    if ($person->isAdmin($_SESSION['id'])): ?>
+                    <?php if (isset($_SESSION['admin']) && $_SESSION['admin'] === true): ?>
                     <a class="btn btn-success" href="create">Добавить</a>
-                    <?php endif; ?>
+                    <?php  endif; ?>
 
                     <div class="border-faded bg-faded p-3 mb-g d-flex mt-3">
                         <input type="text" id="js-filter-contacts" name="filter-contacts" class="form-control shadow-inset-2 form-control-lg" placeholder="Найти пользователя">
@@ -84,8 +82,7 @@ use function Tamtamchik\SimpleFlash\flash;
                                     <a href="javascript:void(0);" class="fs-xl text-truncate text-truncate-lg text-info" data-toggle="dropdown" aria-expanded="false">
                                         <?=$user->username;?>
 
-                                        <?php $person = new AuthModel();
-                                        if ($person->isAdmin($_SESSION['id']) || $_SESSION['id'] === $user->id): ?>
+                                        <?php if ((isset($_SESSION['admin']) && $_SESSION['admin'] === true) || $_SESSION['id'] === $user->id): ?>
 
                                         <i class="fal fas fa-cog fa-fw d-inline-block ml-1 fs-md"></i>
                                         <i class="fal fa-angle-down d-inline-block ml-1 fs-md"></i>
@@ -113,7 +110,7 @@ use function Tamtamchik\SimpleFlash\flash;
                                             Удалить
                                         </a>
                                     </div>
-                                    <?php endif; ?>
+                                    <?php  endif; ?>
                                     <span class="text-truncate text-truncate-xl"><?=$user->job_title;?></span>
                                 </div>
                                 

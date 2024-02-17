@@ -2,15 +2,57 @@
 
 namespace Controllers;
 
+use League\Plates\Engine;
+use Models\EditModel;
 use Models\UserModel;
+use Models\UserValidate;
+use Repository\QueryBuilder;
+use Tamtamchik\SimpleFlash\Flash;
 
 class UserController
 {
     private UserModel $userModel;
 
-    public function __construct()
+    public function __construct(
+        UserValidate $userValidate,
+        Flash $flash,
+        QueryBuilder $queryBuilder,
+        Engine $templates,
+        EditModel $editModel)
     {
-        $this->userModel = new UserModel();
+        $this->userModel = new UserModel($userValidate, $flash, $queryBuilder, $templates, $editModel);
+    }
+
+    /**
+     * @return void
+     */
+    public function getRegForm(): void
+    {
+        $this->userModel->printRegForm();
+    }
+
+    /**
+     * @return void
+     */
+    public function setRegData(): void
+    {
+        $this->userModel->registration();
+    }
+
+    /**
+     * @return void
+     */
+    public function getLoginForm(): void
+    {
+        $this->userModel->printLoginForm();
+    }
+
+    /**
+     * @return void
+     */
+    public function getLogin(): void
+    {
+        $this->userModel->login();
     }
 
     /**
@@ -53,5 +95,13 @@ class UserController
     public function createNewUser(): void
     {
         $this->userModel->newUserCreate();
+    }
+
+    /**
+     * @return void
+     */
+    public function logout(): void
+    {
+        $this->userModel->logoutUser();
     }
 }

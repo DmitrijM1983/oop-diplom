@@ -44,7 +44,7 @@ use function Tamtamchik\SimpleFlash\flash;
                         <span class="text-white opacity-50 ml-auto mr-2 hidden-sm-down">
                             Уже зарегистрированы?
                         </span>
-                        <a href="login" class="btn-link text-white ml-auto ml-sm-0">
+                        <a href="/login" class="btn-link text-white ml-auto ml-sm-0">
                             Войти
                         </a>
                     </div>

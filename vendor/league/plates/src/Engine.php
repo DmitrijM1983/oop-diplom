@@ -17,7 +17,7 @@ use League\Plates\Template\Theme;
 /**
  * Template API and environment settings storage.
  */
-class Engine
+class Engine extends \Tamtamchik\SimpleFlash\Flash
 {
     /**
      * Default template directory.
