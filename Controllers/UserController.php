@@ -6,21 +6,27 @@ use League\Plates\Engine;
 use Models\EditModel;
 use Models\UserModel;
 use Models\UserValidate;
-use Repository\QueryBuilder;
+use Repository\GeneralRepository;
+use Repository\UserRepository;
 use Tamtamchik\SimpleFlash\Flash;
 
 class UserController
 {
     private UserModel $userModel;
+    private Engine $templates;
+    private UserValidate $userValidate;
 
     public function __construct(
         UserValidate $userValidate,
         Flash $flash,
-        QueryBuilder $queryBuilder,
+        GeneralRepository $generalRepository,
         Engine $templates,
-        EditModel $editModel)
+        EditModel $editModel,
+        UserRepository $userRepository)
     {
-        $this->userModel = new UserModel($userValidate, $flash, $queryBuilder, $templates, $editModel);
+        $this->userModel = new UserModel($userValidate, $flash, $generalRepository, $editModel, $this, $userRepository);
+        $this->templates = $templates;
+        $this->userValidate = $userValidate;
     }
 
     /**
@@ -28,7 +34,7 @@ class UserController
      */
     public function getRegForm(): void
     {
-        $this->userModel->printRegForm();
+        echo $this->templates->render('page_register');
     }
 
     /**
@@ -36,7 +42,36 @@ class UserController
      */
     public function setRegData(): void
     {
-        $this->userModel->registration();
+        $rules = [
+            'username' => [
+                'required' => true,
+                'min' => 3,
+                'max' => 25,
+                'unique' => 'users'
+            ],
+            'email' => [
+                'required' => true,
+                'email' => true,
+                'min' => 8,
+                'max' => 25,
+                'unique' => 'users'
+            ],
+            'password' => [
+                'required' => true,
+                'min' => 5
+            ],
+            'password2' => [
+                'required' => true,
+                'matches' => 'password'
+            ]
+        ];
+
+        $this->userValidate->checkData($_POST, $rules);
+        if ($this->userValidate->validateSuccess) {
+            $this->userModel->registration();
+        } else {
+            $this->getRegForm();
+        }
     }
 
     /**
@@ -44,7 +79,7 @@ class UserController
      */
     public function getLoginForm(): void
     {
-        $this->userModel->printLoginForm();
+        echo $this->templates->render('page_login');
     }
 
     /**
@@ -52,7 +87,22 @@ class UserController
      */
     public function getLogin(): void
     {
-        $this->userModel->login();
+        $rules = [
+            'email' => [
+                'required' => true,
+                'email' => true
+            ],
+            'password' => [
+                'required' => true
+            ]
+        ];
+
+        $this->userValidate->checkData($_POST, $rules);
+        if ($this->userValidate->validateSuccess) {
+            $this->userModel->login();
+        }   else {
+        header('Location: /login');
+        }
     }
 
     /**
@@ -60,7 +110,8 @@ class UserController
      */
     public function getUsersList(): void
     {
-       $this->userModel->getAllUsers();
+       $users = $this->userModel->getAllUsers();
+       echo $this->templates->render('users', $users);
     }
 
     /**
@@ -69,7 +120,8 @@ class UserController
      */
     public function getUserById($vars): void
     {
-        $this->userModel->getUser($vars);
+        $user = $this->userModel->getUser($vars);
+        echo $this->templates->render('page_profile', $user);
     }
 
     /**
@@ -86,7 +138,7 @@ class UserController
      */
     public function create(): void
     {
-        $this->userModel->createUser();
+        echo $this->templates->render('create_user');
     }
 
     /**
@@ -94,7 +146,32 @@ class UserController
      */
     public function createNewUser(): void
     {
-        $this->userModel->newUserCreate();
+        $rules = [
+            'username' => [
+                'required' => true,
+                'min' => 3,
+                'max' => 25,
+                'unique' => 'users'
+            ],
+            'email' => [
+                'required' => true,
+                'email' => true,
+                'min' => 8,
+                'max' => 25,
+                'unique' => 'users'
+            ],
+            'password' => [
+                'required' => true,
+                'min' => 5
+            ]
+        ];
+
+        $this->userValidate->checkData($_POST, $rules);
+        if ($this->userValidate->validateSuccess) {
+            $this->userModel->newUserCreate();
+        }  else {
+            $this->create();
+        }
     }
 
     /**
@@ -102,6 +179,6 @@ class UserController
      */
     public function logout(): void
     {
-        $this->userModel->logoutUser();
+        echo $this->templates->render('start_page');
     }
 }

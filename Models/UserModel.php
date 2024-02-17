@@ -1,40 +1,36 @@
 <?php
 
 namespace Models;
+use Controllers\UserController;
 use League;
-use League\Plates\Engine;
-use Repository\QueryBuilder;
+use Repository\GeneralRepository;
+use Repository\UserRepository;
 use \Tamtamchik\SimpleFlash\Flash;
 
 class UserModel
 {
-    private QueryBuilder $queryBuilder;
+    private GeneralRepository $generalRepository;
+    private UserRepository $userRepository;
     private UserValidate $userValidate;
-    private Engine $templates;
     private EditModel $editModel;
+    private UserController $userController;
     public Flash $flash;
     private string $role;
 
     public function __construct(
         UserValidate $userValidate,
         Flash $flash,
-        QueryBuilder $queryBuilder,
-        Engine $templates,
-        EditModel $editModel)
+        GeneralRepository $generalRepository,
+        EditModel $editModel,
+        UserController $userController,
+        UserRepository $userRepository)
     {
-        $this->queryBuilder = $queryBuilder;
+        $this->generalRepository = $generalRepository;
         $this->userValidate = $userValidate;
-        $this->templates = $templates;
         $this->flash = $flash;
         $this->editModel = $editModel;
-    }
-
-    /**
-     * @return void
-     */
-    public function printRegForm(): void
-    {
-        echo $this->templates->render('page_register');
+        $this->userController = $userController;
+        $this->userRepository = $userRepository;
     }
 
     /**
@@ -42,54 +38,13 @@ class UserModel
      */
     public function registration(): void
     {
-        $rules = [
-            'username' =>
-                [
-                    'required' => true,
-                    'min' => 3,
-                    'max' => 25,
-                    'unique' => 'users'
-                ],
-            'email' =>
-                [
-                    'required' => true,
-                    'email' => true,
-                    'min' => 8,
-                    'max' => 25,
-                    'unique' => 'users'
-                ],
-            'password' =>
-                [
-                    'required' => true,
-                    'min' => 5
-                ],
-            'password2' =>
-                [
-                    'required' => true,
-                    'matches' => 'password'
-                ]
-        ];
-
-        $this->userValidate->checkData($_POST, $rules);
-        if ($this->userValidate->validateSuccess) {
-            $params['username'] = $_POST['username'];
-            $params['email'] = $_POST['email'];
-            $params['password'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
-            $this->queryBuilder->insert($params);
-            $this->flash->message("Вы успешно зарегистрированы! Введите email и пароль для входа!", 'success');
-            $_SESSION['email'] = $params['email'];
-            header('Location: /login');
-        } else {
-            header('Location: /registration');
-        }
-    }
-
-    /**
-     * @return void
-     */
-    public function printLoginForm(): void
-    {
-        echo $this->templates->render('page_login');
+        $params['username'] = $_POST['username'];
+        $params['email'] = $_POST['email'];
+        $params['password'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
+        $this->userRepository->insert($params);
+        $this->flash->message("Вы успешно зарегистрированы! Введите email и пароль для входа!", 'success');
+        $_SESSION['email'] = $params['email'];
+        $this->userController->getLoginForm();
     }
 
     /**
@@ -100,55 +55,38 @@ class UserModel
         $email = $_POST['email'];
         $password = $_POST['password'];
 
-        $rules = [
-            'email' =>
-                [
-                    'required' => true,
-                    'email' => true
-                ],
-            'password' =>
-                [
-                    'required' => true
-                ]
-        ];
-
-        $this->userValidate->checkData($_POST, $rules);
-        if ($this->userValidate->validateSuccess) {
-            $user = $this->queryBuilder->getUser($email);
-            if ($user) {
-                $checkPassword = password_verify($password, $user->password);
-                if ($checkPassword) {
-                    if(isset($_POST['remember'])) {
-                        $cookie = $this->queryBuilder->getCookie(['user_id'=>$user->id], 'user_cookie');
-                        if ($cookie) {
-                            $hash = $cookie->hash;
-                        } else {
-                            $hash = hash('sha256', uniqid());
-                            $this->queryBuilder->insertCookie(['user_id'=>$user->id, 'hash'=>$hash]);
-                        }
-                        setcookie('hash', $hash, time() + 604800, '/');
-                    }
-                    $_SESSION['id'] = $user->id;
-                    $_SESSION['username'] = $user->username;
-                    $_SESSION['login'] = true;
-                    $this->getRole($user->id);
-                    if ($this->role === 'admin') {
-                        $this->flash->message("Привет, {$user->username}, ты администратор!");
-                        $_SESSION['admin'] = true;
+        $user = $this->userRepository->getUser($email);
+        if ($user) {
+            $checkPassword = password_verify($password, $user->password);
+            if ($checkPassword) {
+                if(isset($_POST['remember'])) {
+                    $cookie = $this->generalRepository->getCookie(['user_id'=>$user->id], 'user_cookie');
+                    if ($cookie) {
+                        $hash = $cookie->hash;
                     } else {
-                        $this->flash->message("Привет, {$user->username}!");
-                        $_SESSION['admin'] = false;
+                        $hash = hash('sha256', uniqid());
+                        $this->generalRepository->insertCookie(['user_id'=>$user->id, 'hash'=>$hash]);
                     }
-                    header('Location: /users');
-                } else {
-                    $this->flash->message('Логин или пароль не верны!', 'error');
-                    header('Location: /login');
+                    setcookie('hash', $hash, time() + 604800, '/');
                 }
+                $_SESSION['id'] = $user->id;
+                $_SESSION['username'] = $user->username;
+                $_SESSION['login'] = true;
+                $this->getRole($user->id);
+                if ($this->role === 'admin') {
+                    $this->flash->message("Привет, {$user->username}, ты администратор!");
+                    $_SESSION['admin'] = true;
+                } else {
+                    $this->flash->message("Привет, {$user->username}!");
+                    $_SESSION['admin'] = false;
+                }
+                header('Location: /users');
             } else {
                 $this->flash->message('Логин или пароль не верны!', 'error');
                 header('Location: /login');
             }
         } else {
+            $this->flash->message('Логин или пароль не верны!', 'error');
             header('Location: /login');
         }
     }
@@ -159,54 +97,24 @@ class UserModel
      */
     public function getRole($id): mixed
     {
-       return $this->role = $this->queryBuilder->getRoleUser($id);
+       return $this->role = $this->generalRepository->getRoleUser($id);
     }
 
     /**
-     * @return void
+     * @return array|bool
      */
-    public function getAllUsers(): void
+    public function getAllUsers(): bool|array
     {
-        $users = $this->queryBuilder->getUsers();
-        $this->printUsers($users);
+       return $this->userRepository->getUsers();
     }
 
     /**
      * @param $vars
-     * @return void
+     * @return array
      */
-    public function getUser($vars): void
+    public function getUser($vars): array
     {
-        $user = $this->queryBuilder->getOne($vars, 'users');
-        if ($user) {
-            $this->printUser($user);
-        }
-    }
-
-    /**
-     * @return void
-     */
-    public function createUser(): void
-    {
-        echo $this->templates->render('create_user');
-    }
-
-    /**
-     * @param array $data
-     * @return void
-     */
-    public function printUsers(array $data): void
-    {
-        echo $this->templates->render('users', $data);
-    }
-
-    /**
-     * @param array $data
-     * @return void
-     */
-    public function printUser(array $data): void
-    {
-        echo $this->templates->render('page_profile', $data);
+        return $this->userRepository->getOne($vars);
     }
 
     /**
@@ -215,14 +123,15 @@ class UserModel
      */
     public function delete($vars): void
     {
-        $fileName = $this->queryBuilder->getOne($vars, 'users')[0]->image;
+        $fileName = $this->userRepository->getOne($vars)[0]->image;
         if ($fileName) {
             unlink($fileName);
         }
 
-        $this->queryBuilder->deleteUserById($vars);
+        $this->generalRepository->deleteUserById($vars);
         if ($_SESSION['id'] == $vars['id']) {
-            $this->logoutUser();
+            $_SESSION = [];
+            $this->userController->logout();
         } else {
             header('Location: /users');
         }
@@ -233,58 +142,30 @@ class UserModel
      */
     public function newUserCreate(): void
     {
-        $rules = [
-            'username' =>
-                [
-                    'required' => true,
-                    'min' => 3,
-                    'max' => 25,
-                    'unique' => 'users'
-                ],
-            'email' =>
-                [
-                    'required' => true,
-                    'email' => true,
-                    'min' => 8,
-                    'max' => 25,
-                    'unique' => 'users'
-                ],
-            'password' =>
-                [
-                    'required' => true,
-                    'min' => 5
-                ]
-        ];
-
-        $this->userValidate->checkData($_POST, $rules);
         if (!empty($_FILES) && $_FILES['image']['size'] > 0) {
             $checkFile = $this->checkFile($_FILES);
-            if ($this->userValidate->validateSuccess && $checkFile) {
+            if ($checkFile) {
                 $params = $_POST;
                 $params['password'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
                 $status = $this->editModel->setStatusParam($_POST);
                 $params['status'] = $status;
-                $this->queryBuilder->insert($params);
-                $user = $this->queryBuilder->getUser($_POST['email']);
+                $this->userRepository->insert($params);
+                $user = $this->userRepository->getUser($_POST['email']);
                 $this->editModel->setNewImage($_FILES['image']['name'], $_FILES['image']['tmp_name'], ['id' => $user->id]);
                 $this->flash->message('Пользователь успешно добавлен!', 'success');
                 header('Location: /users');
+                exit;
             } else {
-                $this->createUser();
+                $this->userController->create();
             }
-            exit;
-        }
-
-        if ($this->userValidate->validateSuccess) {
+        } else {
             $params = $_POST;
             $params['password'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
             $status = $this->editModel->setStatusParam($_POST);
             $params['status'] = $status;
-            $this->queryBuilder->insert($params);
+            $this->userRepository->insert($params);
             $this->flash->message('Пользователь успешно добавлен!', 'success');
             header('Location: /users');
-        } else {
-            $this->createUser();
         }
     }
 
@@ -297,14 +178,5 @@ class UserModel
         $name = $fileData['image']['name'];
         $size = $fileData['image']['size'];
         return $this->userValidate->checkImage($name, $size);
-    }
-
-    /**
-     * @return void
-     */
-    public function logoutUser(): void
-    {
-        $_SESSION = [];
-        echo $this->templates->render('start_page');
     }
 }

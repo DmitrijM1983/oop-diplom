@@ -4,22 +4,25 @@ namespace Controllers;
 
 use League\Plates\Engine;
 use Models\EditModel;
-use Models\UserModel;
 use Models\UserValidate;
-use Repository\QueryBuilder;
+use Repository\UserRepository;
 use Tamtamchik\SimpleFlash\Flash;
 
 class EditController
 {
     private EditModel $editModel;
+    private Engine $templates;
+    private UserValidate $userValidate;
 
     public function __construct(
-        QueryBuilder $queryBuilder,
         UserValidate $userValidate,
         Engine $templates,
-        Flash $flash)
+        Flash $flash,
+        UserRepository $userRepository)
     {
-        $this->editModel = new EditModel($userValidate, $templates, $flash, $queryBuilder);
+        $this->editModel = new EditModel($userValidate, $flash, $userRepository);
+        $this->templates = $templates;
+        $this->userValidate = $userValidate;
     }
 
     /**
@@ -28,7 +31,8 @@ class EditController
      */
     public function editUser($vars): void
     {
-        $this->editModel->userEdit($vars);
+        $user = $this->editModel->userEdit($vars);
+        echo $this->templates->render('edit', $user);
     }
 
     /**
@@ -37,7 +41,21 @@ class EditController
      */
     public function updateUser($vars): void
     {
-        $this->editModel->userUpdate($vars, $_POST);
+        $rules = [
+            'username' => [
+                'required' => true,
+                'min' => 3,
+                'max' => 25,
+                'unique' => 'users'
+            ]
+        ];
+
+        $this->userValidate->checkData($_POST, $rules, $vars);
+        if ($this->userValidate->validateSuccess) {
+            $this->editModel->userUpdate($vars);
+        }  else {
+            header("Location: /edit/{$vars['id']}");
+        }
     }
 
     /**
@@ -46,7 +64,8 @@ class EditController
      */
     public function getImage($vars): void
     {
-        $this->editModel->getUserImage($vars);
+        $image = $this->editModel->getUserImage($vars);
+        echo $this->templates->render('media', $image);
     }
 
     /**
@@ -64,7 +83,8 @@ class EditController
      */
     public function userSecurity($vars): void
     {
-        $this->editModel->securityUpdate($vars);
+        $user = $this->editModel->securityUpdate($vars);
+        echo $this->templates->render('security', $user);
     }
 
     /**
@@ -73,7 +93,31 @@ class EditController
      */
     public function updateUserSecurity($vars): void
     {
-        $this->editModel->updateSecurity($vars);
+
+        $rules = [
+            'email' => [
+                'required' => true,
+                'email' => true,
+                'min' => 8,
+                'max' => 40,
+                'unique' => 'users'
+            ],
+            'password' => [
+                'required' => true,
+                'min' => 5
+            ],
+            'password2' => [
+                'required' => true,
+                'matches' => 'password'
+            ]
+        ];
+
+        $this->userValidate->checkData($_POST, $rules, $vars);
+        if ($this->userValidate->validateSuccess) {
+            $this->editModel->updateSecurity($vars);
+        } else {
+            header("Location: /security/{$vars['id']}");
+        }
     }
 
     /**
@@ -82,7 +126,8 @@ class EditController
      */
     public function getStatus($vars): void
     {
-        $this->editModel->getCurrentStatus($vars);
+        $status = $this->editModel->getCurrentStatus($vars);
+        echo $this->templates->render('status', $status);
     }
 
     /**

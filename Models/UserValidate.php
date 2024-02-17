@@ -2,20 +2,20 @@
 
 namespace Models;
 
-use Repository\QueryBuilder;
+use Repository\UserRepository;
 use Tamtamchik\SimpleFlash\Flash;
 
-class UserValidate extends \League\Plates\Engine
+class UserValidate
 {
     public Flash $flash;
     private array $errors = [];
-    private QueryBuilder $queryBuilder;
+    private UserRepository $userRepository;
     public bool $validateSuccess = false;
 
-    public function __construct(QueryBuilder $queryBuilder, Flash $flash)
+    public function __construct(Flash $flash, UserRepository $userRepository)
     {
-        $this->queryBuilder = $queryBuilder;
         $this->flash = $flash;
+        $this->userRepository = $userRepository;
     }
 
     /**
@@ -53,7 +53,7 @@ class UserValidate extends \League\Plates\Engine
                             }
                             break;
                         case 'unique':
-                            $check = $this->queryBuilder->getUser($data[$item]);
+                            $check = $this->userRepository->getUser($data[$item]);
                             if ($vars != null) {
                                 if ($check && $check->id != $vars['id']) {
                                     $this->flash->message("Этот {$item} уже используется!", 'error');

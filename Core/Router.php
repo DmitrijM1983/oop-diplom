@@ -4,9 +4,6 @@ namespace Core;
 
 use Controllers\EditController;
 use Controllers\UserController;
-use Controllers\SecurityController;
-use Controllers\StatusController;
-use Controllers\ImageController;
 use DI\ContainerBuilder;
 use Exception;
 use FastRoute;
