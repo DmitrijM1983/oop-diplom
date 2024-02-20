@@ -2,31 +2,22 @@
 
 namespace Controllers;
 
+use JetBrains\PhpStorm\NoReturn;
 use League\Plates\Engine;
-use Models\EditModel;
 use Models\UserModel;
 use Models\UserValidate;
-use Repository\GeneralRepository;
 use Repository\UserRepository;
 use Tamtamchik\SimpleFlash\Flash;
 
-class UserController
+class UserController extends BaseController
 {
-    private UserModel $userModel;
-    private Engine $templates;
-    private UserValidate $userValidate;
-
     public function __construct(
-        UserValidate $userValidate,
-        Flash $flash,
-        GeneralRepository $generalRepository,
-        Engine $templates,
-        EditModel $editModel,
-        UserRepository $userRepository)
-    {
-        $this->userModel = new UserModel($userValidate, $flash, $generalRepository, $editModel, $this, $userRepository);
-        $this->templates = $templates;
-        $this->userValidate = $userValidate;
+        private readonly UserValidate $userValidate,
+        private readonly Engine $engine,
+        private readonly UserModel $userModel,
+        private readonly UserRepository $userRepository,
+        private readonly Flash $flash
+    ) {
     }
 
     /**
@@ -34,13 +25,13 @@ class UserController
      */
     public function getRegForm(): void
     {
-        echo $this->templates->render('page_register');
+        echo $this->engine->render('page_register');
     }
 
     /**
      * @return void
      */
-    public function setRegData(): void
+    #[NoReturn] public function setRegData(): void
     {
         $rules = [
             'username' => [
@@ -69,9 +60,9 @@ class UserController
         $this->userValidate->checkData($_POST, $rules);
         if ($this->userValidate->validateSuccess) {
             $this->userModel->registration();
-        } else {
-            $this->getRegForm();
+            $this->redirect('/login');
         }
+        $this->redirect('/registration');
     }
 
     /**
@@ -79,13 +70,13 @@ class UserController
      */
     public function getLoginForm(): void
     {
-        echo $this->templates->render('page_login');
+        echo $this->engine->render('page_login');
     }
 
     /**
      * @return void
      */
-    public function getLogin(): void
+    #[NoReturn] public function getLogin(): void
     {
         $rules = [
             'email' => [
@@ -98,11 +89,27 @@ class UserController
         ];
 
         $this->userValidate->checkData($_POST, $rules);
+        $email = $_POST['email'];
+        $password = $_POST['password'];
         if ($this->userValidate->validateSuccess) {
-            $this->userModel->login();
-        }   else {
-        header('Location: /login');
+            $user = $this->userRepository->getUser($email);
+            if ($user) {
+                $checkPassword = password_verify($password, $user->password);
+                if ($checkPassword) {
+                    $id = $user->id;
+                    $userName = $user->username;
+                    $this->userModel->login($id, $userName);
+                    $this->redirect('users');
+                } else {
+                    $this->flash->message('Логин или пароль не верны!', 'error');
+                    $this->getLoginForm();
+                }
+            } else {
+                $this->flash->message('Логин или пароль не верны!', 'error');
+                $this->getLoginForm();
+            }
         }
+        $this->redirect('/login');;
     }
 
     /**
@@ -111,26 +118,33 @@ class UserController
     public function getUsersList(): void
     {
        $users = $this->userModel->getAllUsers();
-       echo $this->templates->render('users', $users);
+       echo $this->engine->render('users', $users);
     }
 
     /**
-     * @param $vars
+     * @param array $vars
      * @return void
      */
-    public function getUserById($vars): void
+    public function getUserById(array $vars): void
     {
         $user = $this->userModel->getUser($vars);
-        echo $this->templates->render('page_profile', $user);
+        echo $this->engine->render('page_profile', $user);
     }
 
     /**
-     * @param $vars
+     * @param array $vars
      * @return void
      */
-    public function deleteUser($vars): void
+    #[NoReturn] public function deleteUser(array $vars): void
     {
         $this->userModel->delete($vars);
+
+        if ($_SESSION['id'] == $vars['id']) {
+            $_SESSION = [];
+            $this->redirect('/views/start_page.php');
+        } else {
+            $this->redirect('/users');
+        }
     }
 
     /**
@@ -138,7 +152,7 @@ class UserController
      */
     public function create(): void
     {
-        echo $this->templates->render('create_user');
+        echo $this->engine->render('create_user');
     }
 
     /**
@@ -168,7 +182,17 @@ class UserController
 
         $this->userValidate->checkData($_POST, $rules);
         if ($this->userValidate->validateSuccess) {
-            $this->userModel->newUserCreate();
+            if (!empty($_FILES) && $_FILES['image']['size'] > 0) {
+                $newUser = $this->userModel->newUserCreateWithImage();
+                if ($newUser) {
+                    $this->redirect('users');
+                } else {
+                    $this->create();
+                }
+            } else {
+                $this->userModel->newUserCreate();
+                $this->redirect('users');
+            }
         }  else {
             $this->create();
         }
@@ -179,6 +203,6 @@ class UserController
      */
     public function logout(): void
     {
-        echo $this->templates->render('start_page');
+        echo $this->engine->render('start_page');
     }
 }

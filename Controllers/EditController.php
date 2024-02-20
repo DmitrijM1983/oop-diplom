@@ -5,41 +5,31 @@ namespace Controllers;
 use League\Plates\Engine;
 use Models\EditModel;
 use Models\UserValidate;
-use Repository\UserRepository;
-use Tamtamchik\SimpleFlash\Flash;
 
-class EditController
+class EditController extends BaseController
 {
-    private EditModel $editModel;
-    private Engine $templates;
-    private UserValidate $userValidate;
-
     public function __construct(
-        UserValidate $userValidate,
-        Engine $templates,
-        Flash $flash,
-        UserRepository $userRepository)
-    {
-        $this->editModel = new EditModel($userValidate, $flash, $userRepository);
-        $this->templates = $templates;
-        $this->userValidate = $userValidate;
+       private readonly UserValidate $userValidate,
+       private readonly Engine $templates,
+       private readonly EditModel $editModel
+    ) {
     }
 
     /**
-     * @param $vars
+     * @param array $vars
      * @return void
      */
-    public function editUser($vars): void
+    public function editUser(array $vars): void
     {
         $user = $this->editModel->userEdit($vars);
         echo $this->templates->render('edit', $user);
     }
 
     /**
-     * @param $vars
+     * @param array $vars
      * @return void
      */
-    public function updateUser($vars): void
+    public function updateUser(array $vars): void
     {
         $rules = [
             'username' => [
@@ -53,45 +43,50 @@ class EditController
         $this->userValidate->checkData($_POST, $rules, $vars);
         if ($this->userValidate->validateSuccess) {
             $this->editModel->userUpdate($vars);
+            $this->redirect('/users');
         }  else {
-            header("Location: /edit/{$vars['id']}");
+            $this->editUser($vars);
         }
     }
 
     /**
-     * @param $vars
+     * @param array $vars
      * @return void
      */
-    public function getImage($vars): void
+    public function getImage(array $vars): void
     {
         $image = $this->editModel->getUserImage($vars);
         echo $this->templates->render('media', $image);
     }
 
     /**
-     * @param $vars
+     * @param array $vars
      * @return void
      */
-    public function setImage($vars): void
+    public function setImage(array $vars): void
     {
-        $this->editModel->checkFile($_FILES, $vars);
+        $check = $this->editModel->checkFile($_FILES, $vars);
+        if ($check) {
+            $this->redirect('/users');
+        }
+        $this->getImage($vars);
     }
 
     /**
-     * @param $vars
+     * @param array $vars
      * @return void
      */
-    public function userSecurity($vars): void
+    public function userSecurity(array $vars): void
     {
         $user = $this->editModel->securityUpdate($vars);
         echo $this->templates->render('security', $user);
     }
 
     /**
-     * @param $vars
+     * @param array $vars
      * @return void
      */
-    public function updateUserSecurity($vars): void
+    public function updateUserSecurity(array $vars): void
     {
 
         $rules = [
@@ -115,27 +110,29 @@ class EditController
         $this->userValidate->checkData($_POST, $rules, $vars);
         if ($this->userValidate->validateSuccess) {
             $this->editModel->updateSecurity($vars);
+            $this->redirect('/users');
         } else {
-            header("Location: /security/{$vars['id']}");
+            $this->userSecurity($vars);
         }
     }
 
     /**
-     * @param $vars
+     * @param array $vars
      * @return void
      */
-    public function getStatus($vars): void
+    public function getStatus(array $vars): void
     {
         $status = $this->editModel->getCurrentStatus($vars);
         echo $this->templates->render('status', $status);
     }
 
     /**
-     * @param $vars
+     * @param array $vars
      * @return void
      */
-    public function setStatus($vars): void
+    public function setStatus(array $vars): void
     {
         $this->editModel->setStatusParam($_POST, $vars);
+        $this->redirect('/users');
     }
 }
